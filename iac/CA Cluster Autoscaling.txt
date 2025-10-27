@@ -1,0 +1,5 @@
+CA Cluster Autoscaling
+OIDC Open ID Connect
+ASG Auto Scaling Group
+Scale Out add nodes
+Scale In delete nodes
