@@ -1,39 +1,34 @@
 variable "cluster_name" {
-  description = "Name of the EKS cluster"
+  description = "Nom du cluster EKS"
   type        = string
 }
 
-variable "cluster_version" {
-  description = "Kubernetes version"
+variable "aws_region" {
+  description = "Région AWS"
   type        = string
 }
 
 variable "vpc_id" {
-  description = "VPC ID"
+  description = "ID du VPC"
   type        = string
 }
 
-variable "subnet_ids" {
-  description = "List of subnet IDs"
+variable "private_subnets" {
+  description = "Liste des sous-réseaux privés"
   type        = list(string)
 }
 
-variable "private_subnet_ids" {
-  description = "List of private subnet IDs"
+variable "public_subnets" {
+  description = "Liste des sous-réseaux publics"
   type        = list(string)
 }
 
 variable "cluster_role_arn" {
-  description = "ARN of the EKS cluster role"
+  description = "ARN du rôle IAM du cluster"
   type        = string
 }
 
-variable "node_role_arn" {
-  description = "ARN of the EKS node group role"
-  type        = string
-}
-
-variable "addon_version" {
-  description = "Version of the EKS addon"
+variable "node_group_role_arn" {
+  description = "ARN du rôle IAM des nodes"
   type        = string
 }

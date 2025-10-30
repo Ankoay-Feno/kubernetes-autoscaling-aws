@@ -3,6 +3,7 @@ resource "aws_iam_role" "eks_cluster" {
   name = "${var.cluster_name}-cluster-role"
 
   assume_role_policy = jsonencode({
+    Version = "2012-10-17"
     Statement = [{
       Action = "sts:AssumeRole"
       Effect = "Allow"
@@ -10,10 +11,14 @@ resource "aws_iam_role" "eks_cluster" {
         Service = "eks.amazonaws.com"
       }
     }]
-    Version = "2012-10-17"
   })
+
+  tags = {
+    Name = "${var.cluster_name}-cluster-role"
+  }
 }
 
+# Attachement des politiques au rôle cluster
 resource "aws_iam_role_policy_attachment" "eks_cluster_policy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
   role       = aws_iam_role.eks_cluster.name
@@ -29,6 +34,7 @@ resource "aws_iam_role" "eks_node_group" {
   name = "${var.cluster_name}-node-group-role"
 
   assume_role_policy = jsonencode({
+    Version = "2012-10-17"
     Statement = [{
       Action = "sts:AssumeRole"
       Effect = "Allow"
@@ -36,15 +42,14 @@ resource "aws_iam_role" "eks_node_group" {
         Service = "ec2.amazonaws.com"
       }
     }]
-    Version = "2012-10-17"
   })
+
+  tags = {
+    Name = "${var.cluster_name}-node-group-role"
+  }
 }
 
-resource "aws_iam_role_policy_attachment" "ebs_csi_driver_policy" {
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
-  role       = aws_iam_role.eks_node_group.name
-}
-
+# Attachement des politiques au rôle node group
 resource "aws_iam_role_policy_attachment" "eks_worker_node_policy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
   role       = aws_iam_role.eks_node_group.name
@@ -57,10 +62,5 @@ resource "aws_iam_role_policy_attachment" "eks_cni_policy" {
 
 resource "aws_iam_role_policy_attachment" "ec2_container_registry_read_only" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
-  role       = aws_iam_role.eks_node_group.name
-}
-
-resource "aws_iam_role_policy_attachment" "autoscaling_full_access" {
-  policy_arn = "arn:aws:iam::aws:policy/AutoScalingFullAccess"
   role       = aws_iam_role.eks_node_group.name
 }

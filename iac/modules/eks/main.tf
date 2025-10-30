@@ -1,28 +1,46 @@
 # Cluster EKS
 resource "aws_eks_cluster" "main" {
   name     = var.cluster_name
-  version  = var.cluster_version
+  version  = "1.34"
   role_arn = var.cluster_role_arn
 
   vpc_config {
-    subnet_ids              = var.subnet_ids
+    subnet_ids              = concat(var.public_subnets, var.private_subnets)
     endpoint_private_access = true
     endpoint_public_access  = true
+    public_access_cidrs     = ["0.0.0.0/0"]
   }
 
-  depends_on = [
-    var.cluster_role_arn
-  ]
+  enabled_cluster_log_types = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
+
+  tags = {
+    Name = var.cluster_name
+  }
 }
 
-# Node Group avec 3 nodes
+# OIDC Provider pour EKS
+data "tls_certificate" "eks" {
+  url = aws_eks_cluster.main.identity[0].oidc[0].issuer
+}
+
+resource "aws_iam_openid_connect_provider" "eks" {
+  client_id_list  = ["sts.amazonaws.com"]
+  thumbprint_list = [data.tls_certificate.eks.certificates[0].sha1_fingerprint]
+  url             = aws_eks_cluster.main.identity[0].oidc[0].issuer
+
+  tags = {
+    Name = "${var.cluster_name}-oidc"
+  }
+}
+
+# Node Group
 resource "aws_eks_node_group" "workers" {
   cluster_name    = aws_eks_cluster.main.name
   node_group_name = "worker-nodes"
-  node_role_arn   = var.node_role_arn
-  subnet_ids      = var.private_subnet_ids
+  node_role_arn   = var.node_group_role_arn
+  subnet_ids      = var.private_subnets
 
-  instance_types = ["t2.medium"]
+  instance_types = ["t3.medium"]
 
   scaling_config {
     desired_size = 1
@@ -35,20 +53,11 @@ resource "aws_eks_node_group" "workers" {
   }
 
   tags = {
-    "k8s.io/cluster-autoscaler/${aws_eks_cluster.main.name}" = "owned"
-    "k8s.io/cluster-autoscaler/enabled"                      = "TRUE"
+    Name = "${var.cluster_name}-worker-nodes"
   }
-
-  depends_on = [
-    aws_eks_cluster.main
-  ]
 }
 
-resource "aws_eks_addon" "ebs_csi" {
-  cluster_name             = aws_eks_cluster.main.name
-  addon_name               = "aws-ebs-csi-driver"
-  
-  depends_on = [ 
-    aws_eks_node_group.workers
-  ]
+# Data source pour l'authentification EKS
+data "aws_eks_cluster_auth" "main" {
+  name = aws_eks_cluster.main.name
 }
