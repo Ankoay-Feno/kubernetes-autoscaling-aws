@@ -1,34 +1,48 @@
 variable "cluster_name" {
-  description = "Nom du cluster EKS"
-  type        = string
+  type = string
 }
 
-variable "aws_region" {
-  description = "Région AWS"
-  type        = string
+variable "cluster_version" {
+  type    = string
+  default = "1.30"
 }
 
 variable "vpc_id" {
-  description = "ID du VPC"
-  type        = string
+  type = string
 }
 
-variable "private_subnets" {
-  description = "Liste des sous-réseaux privés"
-  type        = list(string)
+variable "subnet_ids" {
+  type = list(string)
 }
 
-variable "public_subnets" {
-  description = "Liste des sous-réseaux publics"
-  type        = list(string)
+variable "private_subnet_ids" {
+  type = list(string)
 }
 
 variable "cluster_role_arn" {
-  description = "ARN du rôle IAM du cluster"
-  type        = string
+  type = string
 }
 
-variable "node_group_role_arn" {
-  description = "ARN du rôle IAM des nodes"
-  type        = string
+variable "node_role_arn" {
+  type = string
+}
+
+variable "instance_types" {
+  type    = list(string)
+  default = ["t3.medium"]
+}
+
+variable "desired_size" {
+  type    = number
+  default = 1
+}
+
+variable "max_size" {
+  type    = number
+  default = 5
+}
+
+variable "min_size" {
+  type    = number
+  default = 1
 }

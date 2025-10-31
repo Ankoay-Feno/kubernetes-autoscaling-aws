@@ -1,3 +1,4 @@
+# outputs.tf
 output "cluster_id" {
   description = "ID du cluster EKS"
   value       = module.eks.cluster_id
@@ -15,9 +16,10 @@ output "cluster_name" {
 
 output "vpc_id" {
   description = "ID du VPC"
-  value       = module.vpc.vpc_id
+  value       = module.networking.vpc_id
 }
 
-output "synchro_kube_config" {
-  value = "aws eks update-kubeconfig --region ${var.aws_region} --name ${module.eks.cluster_name}"
+output "node_group_id" {
+  description = "ID du node group"
+  value       = module.eks.node_group_id
 }

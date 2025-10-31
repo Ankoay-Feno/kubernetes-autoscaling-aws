@@ -1,4 +1,3 @@
 variable "cluster_name" {
-  description = "Nom du cluster EKS"
-  type        = string
+  type = string
 }

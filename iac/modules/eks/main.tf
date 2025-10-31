@@ -1,11 +1,10 @@
-# Cluster EKS
 resource "aws_eks_cluster" "main" {
   name     = var.cluster_name
-  version  = "1.34"
+  version  = var.cluster_version
   role_arn = var.cluster_role_arn
 
   vpc_config {
-    subnet_ids              = concat(var.public_subnets, var.private_subnets)
+    subnet_ids              = var.subnet_ids
     endpoint_private_access = true
     endpoint_public_access  = true
     public_access_cidrs     = ["0.0.0.0/0"]
@@ -13,12 +12,15 @@ resource "aws_eks_cluster" "main" {
 
   enabled_cluster_log_types = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
 
+  depends_on = [
+    var.cluster_role_arn
+  ]
+
   tags = {
     Name = var.cluster_name
   }
 }
 
-# OIDC Provider pour EKS
 data "tls_certificate" "eks" {
   url = aws_eks_cluster.main.identity[0].oidc[0].issuer
 }
@@ -33,31 +35,29 @@ resource "aws_iam_openid_connect_provider" "eks" {
   }
 }
 
-# Node Group
 resource "aws_eks_node_group" "workers" {
   cluster_name    = aws_eks_cluster.main.name
   node_group_name = "worker-nodes"
-  node_role_arn   = var.node_group_role_arn
-  subnet_ids      = var.private_subnets
+  node_role_arn   = var.node_role_arn
+  subnet_ids      = var.private_subnet_ids
 
-  instance_types = ["t3.medium"]
+  instance_types = var.instance_types
 
   scaling_config {
-    desired_size = 1
-    max_size     = 5
-    min_size     = 1
+    desired_size = var.desired_size
+    max_size     = var.max_size
+    min_size     = var.min_size
   }
 
   update_config {
     max_unavailable = 1
   }
 
+  depends_on = [
+    var.node_role_arn
+  ]
+
   tags = {
     Name = "${var.cluster_name}-worker-nodes"
   }
-}
-
-# Data source pour l'authentification EKS
-data "aws_eks_cluster_auth" "main" {
-  name = aws_eks_cluster.main.name
 }
