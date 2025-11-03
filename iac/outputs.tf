@@ -23,3 +23,8 @@ output "node_group_id" {
   description = "ID du node group"
   value       = module.eks.node_group_id
 }
+
+output "kubeconfig_update_command" {
+  description = "Commande pour mettre à jour le kubeconfig"
+  value = "aws eks update-kubeconfig --name ${module.eks.cluster_name} --region ${var.aws_region}"
+}
