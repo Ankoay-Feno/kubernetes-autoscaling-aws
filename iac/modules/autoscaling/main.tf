@@ -1,6 +1,3 @@
-# NE PAS mettre de bloc provider ici
-
-# Rôle IAM pour Cluster Autoscaler
 resource "aws_iam_role" "cluster_autoscaler" {
   name = "${var.cluster_name}-cluster-autoscaler-role"
 
@@ -64,7 +61,6 @@ resource "aws_iam_role_policy_attachment" "cluster_autoscaler" {
   role       = aws_iam_role.cluster_autoscaler.name
 }
 
-# Resources Kubernetes pour Cluster Autoscaler
 resource "kubernetes_service_account" "cluster_autoscaler" {
   metadata {
     name      = "cluster-autoscaler"
