@@ -1,6 +1,4 @@
-# NE PAS mettre de bloc provider ici
 
-# Rôle IAM pour Cluster Autoscaler
 resource "aws_iam_role" "cluster_autoscaler" {
   name = "${var.cluster_name}-cluster-autoscaler-role"
 

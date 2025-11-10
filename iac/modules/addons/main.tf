@@ -1,9 +1,6 @@
-# NE PAS mettre de bloc provider ici
-# Le provider sera passé par l'appelant
 
 data "aws_caller_identity" "current" {}
 
-# Rôle IAM pour EBS CSI Driver
 resource "aws_iam_role" "ebs_csi_driver" {
   name = "${var.cluster_name}-ebs-csi-driver-role"
 
@@ -29,7 +26,6 @@ resource "aws_iam_role_policy_attachment" "ebs_csi_driver_policy" {
   role       = aws_iam_role.ebs_csi_driver.name
 }
 
-# Addons EKS
 resource "aws_eks_addon" "ebs_csi" {
   cluster_name             = var.cluster_name
   addon_name               = "aws-ebs-csi-driver"
