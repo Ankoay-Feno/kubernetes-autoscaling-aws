@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+
+>>>>>>> 1c0cbeb916b7804a9954e7601e159067752da6c9
 resource "aws_iam_role" "cluster_autoscaler" {
   name = "${var.cluster_name}-cluster-autoscaler-role"
 
