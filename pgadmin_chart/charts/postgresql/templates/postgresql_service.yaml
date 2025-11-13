@@ -1,0 +1,13 @@
+{{- if .Values.postgresql.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgresql
+spec:
+  clusterIP: None
+  ports:
+    - port: {{ .Values.postgresql.port }}
+      name: postgresql
+  selector:
+    app: postgresql
+{{- end }}

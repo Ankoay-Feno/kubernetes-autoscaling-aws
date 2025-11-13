@@ -1,0 +1,81 @@
+{{- if .Values.pgadmin.enabled }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: pgadmin
+spec:
+  serviceName: pgadmin
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pgadmin
+  template:
+    metadata:
+      labels:
+        app: pgadmin
+    spec:
+      securityContext:
+        runAsUser: 5050
+        runAsGroup: 5050
+        fsGroup: 5050
+
+      initContainers:
+        - name: cleanup
+          image: busybox
+          securityContext:
+            runAsUser: 0
+          command:
+            - sh
+            - -c
+            - |
+              echo "[Init] Cleaning old pgadmin4.db to force reload"
+              rm -f /var/lib/pgadmin/pgadmin4.db || true
+          volumeMounts:
+            - name: pgadmin-data
+              mountPath: /var/lib/pgadmin
+
+      containers:
+        - name: pgadmin
+          image: {{ .Values.pgadmin.image }}
+          ports:
+            - containerPort: {{ .Values.pgadmin.port }}
+          env:
+            - name: PGADMIN_DEFAULT_EMAIL
+              value: {{ .Values.pgadmin.credentials.email }}
+            - name: PGADMIN_DEFAULT_PASSWORD
+              value: {{ .Values.pgadmin.credentials.password }}
+            - name: PGADMIN_CONFIG_SERVER_MODE
+              value: "True"
+          volumeMounts:
+            - name: pgadmin-data
+              mountPath: /var/lib/pgadmin
+            - name: pgadmin-config
+              mountPath: /pgadmin4/servers.json
+              subPath: servers.json
+            - name: pgadmin-config
+              mountPath: /pgpass
+              subPath: pgpass
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+
+      volumes:
+        - name: pgadmin-config
+          configMap:
+            name: pgadmin-config
+        
+
+  volumeClaimTemplates:
+    - metadata:
+        name: pgadmin-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: {{ .Values.pgadmin.storage.className }}
+        resources:
+          requests:
+            storage: {{ .Values.pgadmin.storage.size }}
+{{- end }}

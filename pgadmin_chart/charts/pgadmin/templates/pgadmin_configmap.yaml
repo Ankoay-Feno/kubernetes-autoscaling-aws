@@ -1,0 +1,24 @@
+{{- if .Values.pgadmin.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pgadmin-config
+data:
+  servers.json: |
+    {
+      "Servers": {
+        "1": {
+          "Name": "PostgreSQLk8s",
+          "Group": "Servers",
+          "Host": "postgresql",
+          "Port": 5432,
+          "MaintenanceDB": "{{ .Values.postgresql.credentials.db }}",
+          "Username": "{{ .Values.postgresql.credentials.user }}",
+          "SSLMode": "prefer"
+        }
+      }
+    }
+
+  pgpass: |
+    postgresql:5432:{{ .Values.postgresql.credentials.db }}:{{ .Values.postgresql.credentials.user }}:{{ .Values.postgresql.credentials.password }}
+{{- end }}

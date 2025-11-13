@@ -1,0 +1,38 @@
+pgadmin:
+  enabled: true
+  image: "dpage/pgadmin4"
+  port: 80
+  credentials:
+    email: "admin@admin.com"
+    password: "admin123"
+  storage:
+    className: gp3-default
+    size: 2Gi
+  ingress:
+    enabled: true
+    host: "pgadmin.infracraft.me"
+    path: "/"
+
+
+postgresql:
+  enabled: true
+  image: "postgres:15"
+  replicas: 1
+  port: 5432
+
+  storage:
+    size: 10Gi
+    className: gp3-default
+
+  credentials:
+    user: "admin"
+    password: "admin123"
+    db: "mydatabase"
+
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "256Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"

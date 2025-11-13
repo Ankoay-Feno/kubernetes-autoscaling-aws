@@ -1,0 +1,16 @@
+storageClass:
+  enabled: true
+  name: "gp3-default"
+
+  isDefault: true
+
+  provisioner: "ebs.csi.aws.com"
+
+  parameters:
+    type: gp3
+    fsType: ext4
+    encrypted: true
+
+  volumeBindingMode: "WaitForFirstConsumer"
+  allowVolumeExpansion: "true"
+  reclaimPolicy: "Delete"
